@@ -16,6 +16,8 @@
         <module>kkmall-order</module>
         <module>kkmall-product</module>
         <module>kkmall-ware</module>
+        <module>kkmall-common</module>
+        <module>renren-fast</module>
     </modules>
 
 </project>
