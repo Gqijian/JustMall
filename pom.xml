@@ -18,6 +18,8 @@
         <module>kkmall-ware</module>
         <module>kkmall-common</module>
         <module>renren-fast</module>
+        <module>renren-generator</module>
+        <module>kkmall-common</module>
     </modules>
 
 </project>
