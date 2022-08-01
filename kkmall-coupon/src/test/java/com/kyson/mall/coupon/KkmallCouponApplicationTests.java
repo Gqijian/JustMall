@@ -9,6 +9,7 @@ class KkmallCouponApplicationTests {
     @Test
     void contextLoads()
     {
+
     }
 
 }
