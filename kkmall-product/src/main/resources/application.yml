@@ -27,3 +27,6 @@ mybatis-plus:
 logging:
   level:
     com.kyson.mall: debug
+
+
+
