@@ -17,6 +17,20 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  *      配置全局逻辑删除配置
  *      加上逻辑删除注解 @TableLogic
  *
+ * 4、JSR303校验
+ *      添加注解: import javax.validation.constraints
+ *      @Valid 标记需要检验的对象
+ *          效果：
+ *           就是400错误 且有提示
+ *
+ *      BandingResult 校验结果
+ *      save(@Valid @RequestBody BrandEntity brand, BindingResult bindingResult)
+ *
+ *      分组校验
+ *
+ * 5、统一的异常处理 @RestControllerAdvice
+ *
+ *
  */
 @EnableDiscoveryClient
 @MapperScan("com.kyson.mall.product.dao")

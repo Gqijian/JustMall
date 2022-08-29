@@ -9,4 +9,17 @@ spring:
       discovery:
         server-addr: 127.0.0.1:8848
 
-
+#alibaba:
+#  cloud:
+#    oss:
+#      endpoint: https://oss-cn-shenzhen.aliyuncs.com
+#      sts:
+#        access-key: LTAI5tBJvUkuYmbMHavzZvwB
+#        secret-key: T0mHoDLISr0sQYnepx2MmPner7GahN
+alibaba:
+  cloud:
+    access-key: LTAI5tBJvUkuYmbMHavzZvwB
+    secret-key: T0mHoDLISr0sQYnepx2MmPner7GahN
+    oss:
+      endpoint: https://oss-cn-shenzhen.aliyuncs.com
+      bucket: kkmall-hello-1

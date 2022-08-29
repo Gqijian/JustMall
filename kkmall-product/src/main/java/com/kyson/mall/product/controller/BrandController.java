@@ -1,9 +1,11 @@
 package com.kyson.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +17,7 @@ import com.kyson.mall.product.service.BrandService;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.R;
 
+import javax.validation.Valid;
 
 
 /**
@@ -58,9 +61,28 @@ public class BrandController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:brand:save")
-    public R save(@RequestBody BrandEntity brand){
-		brandService.save(brand);
+    public R save(@Valid @RequestBody BrandEntity brand /*, BindingResult result*/){
+        /*
+        if(result.hasErrors()){
+            //1、获取校验错误结果
+            Map<String, String> map = new HashMap<>();
+            result.getFieldErrors().forEach((err)->{
+                //FieldError 获取到错误提示
+                String defaultMessage = err.getDefaultMessage();
 
+                //获取到错误属性名字
+                String field = err.getField();
+                map.put(field, defaultMessage);
+            });
+
+            return R.error(400,"error").put("data", map);
+        }else {
+
+
+        }
+
+        */
+        brandService.save(brand);
         return R.ok();
     }
 
