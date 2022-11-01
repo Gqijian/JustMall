@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
+@Slf4j
 @SpringBootTest
 class KkmallThirdPartyApplicationTests {
 
@@ -24,6 +26,7 @@ class KkmallThirdPartyApplicationTests {
      * 文档位置
      * https://help.aliyun.com/document_detail/31926.htm?spm=a2c4g.11186623.0.0.2688344eP9r7OE#concept-en4-sjy-5db
      *
+     * @Slf4j 生成 log 对象
      */
 
     @Test

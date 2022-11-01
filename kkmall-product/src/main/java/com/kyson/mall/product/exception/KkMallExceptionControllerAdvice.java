@@ -25,10 +25,10 @@ import java.util.Map;
 @RestControllerAdvice(basePackages = "com.kyson.mall.product.controller")
 public class KkMallExceptionControllerAdvice {
 
-    @ExceptionHandler(value = Exception.class)
-    public R handleException(Exception e)
+    @ExceptionHandler(value = Throwable.class)
+    public R handleException(Throwable throwable)
     {
-        log.error("异常类型：{}, 数据校验出现问题: {} ", e.getClass(), e.getMessage());
+        log.error("出现了未知异常: ", throwable);
         return R.error(BizCodeEnum.UNKNOW_EXCEPTION.getCode(), BizCodeEnum.UNKNOW_EXCEPTION.getMsg());
     }
 

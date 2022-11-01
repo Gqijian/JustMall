@@ -4,8 +4,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.kyson.common.valid.AddGroup;
+import com.kyson.common.valid.UpdateGroup;
+import com.kyson.common.valid.UpdateStatusGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,7 +65,7 @@ public class BrandController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:brand:save")
-    public R save(@Valid @RequestBody BrandEntity brand /*, BindingResult result*/){
+    public R save(@Validated({AddGroup.class}) @RequestBody BrandEntity brand /*, BindingResult result*/){
         /*
         if(result.hasErrors()){
             //1、获取校验错误结果
@@ -91,8 +95,19 @@ public class BrandController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:brand:update")
-    public R update(@RequestBody BrandEntity brand){
-		brandService.updateById(brand);
+    public R update(@Validated(UpdateGroup.class) @RequestBody BrandEntity brand){
+		//brandService.updateById(brand);
+        brandService.updateDetail(brand);
+        return R.ok();
+    }
+
+    /**
+     * 修改
+     */
+    @RequestMapping("/update/status")
+    //@RequiresPermissions("product:brand:update")
+    public R updateStatus(@Validated(UpdateStatusGroup.class)@RequestBody BrandEntity brand){
+        brandService.updateById(brand);
 
         return R.ok();
     }
