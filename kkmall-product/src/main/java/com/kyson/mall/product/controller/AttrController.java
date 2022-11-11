@@ -3,6 +3,7 @@ package com.kyson.mall.product.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.kyson.mall.product.vo.AttrGroupRelationVo;
 import com.kyson.mall.product.vo.AttrRespVo;
 import com.kyson.mall.product.vo.AttrVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,11 +29,12 @@ public class AttrController {
     @Autowired
     private AttrService attrService;
 
-    @GetMapping("/base/list/{catelogId}")
+    @GetMapping("/{attrType}/list/{catelogId}")
     public R baseAttrList(@RequestParam Map<String, Object> params,
+                          @PathVariable("attrType") String attrType,
                           @PathVariable("catelogId") Long catelogId){
 
-        PageUtils page = attrService.queryBaseAttrPage(params, catelogId);
+        PageUtils page = attrService.queryBaseAttrPage(params, catelogId, attrType);
         return R.ok().put("page", page);
     }
 

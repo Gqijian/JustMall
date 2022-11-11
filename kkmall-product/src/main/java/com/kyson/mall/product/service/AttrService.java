@@ -3,9 +3,11 @@ package com.kyson.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.mall.product.entity.AttrEntity;
+import com.kyson.mall.product.vo.AttrGroupRelationVo;
 import com.kyson.mall.product.vo.AttrRespVo;
 import com.kyson.mall.product.vo.AttrVo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,10 +23,14 @@ public interface AttrService extends IService<AttrEntity> {
 
     void saveAttr(AttrVo attr);
 
-    PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId);
+    PageUtils queryBaseAttrPage(Map<String, Object> params, Long catelogId, String attrType);
 
     AttrRespVo getAttrInfo(Long attrId);
 
     void updateAttr(AttrVo attrVo);
+
+    List<AttrEntity> getRelationAttr(Long attrgroupId);
+
+    void deleteRelation(AttrGroupRelationVo[] vos);
 }
 
