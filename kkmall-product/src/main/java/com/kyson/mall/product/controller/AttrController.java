@@ -1,8 +1,11 @@
 package com.kyson.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import com.kyson.mall.product.entity.ProductAttrValueEntity;
+import com.kyson.mall.product.service.ProductAttrValueService;
 import com.kyson.mall.product.vo.AttrGroupRelationVo;
 import com.kyson.mall.product.vo.AttrRespVo;
 import com.kyson.mall.product.vo.AttrVo;
@@ -15,7 +18,6 @@ import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.R;
 
 
-
 /**
  * 商品属性
  *
@@ -26,13 +28,27 @@ import com.kyson.common.utils.R;
 @RestController
 @RequestMapping("product/attr")
 public class AttrController {
+
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private ProductAttrValueService productAttrValueService;
+
+
+    @GetMapping("/base/listforspu/{spuId}")
+    public R baseAttrListForSpu(@PathVariable("spuId") String spuId)
+    {
+
+        List<ProductAttrValueEntity> entities = productAttrValueService.baseAttrListForSpu(spuId);
+        return R.ok().put("data", entities);
+    }
 
     @GetMapping("/{attrType}/list/{catelogId}")
     public R baseAttrList(@RequestParam Map<String, Object> params,
                           @PathVariable("attrType") String attrType,
-                          @PathVariable("catelogId") Long catelogId){
+                          @PathVariable("catelogId") Long catelogId)
+    {
 
         PageUtils page = attrService.queryBaseAttrPage(params, catelogId, attrType);
         return R.ok().put("page", page);
@@ -43,7 +59,8 @@ public class AttrController {
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:attr:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params)
+    {
         PageUtils page = attrService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -55,8 +72,9 @@ public class AttrController {
      */
     @RequestMapping("/info/{attrId}")
     //@RequiresPermissions("product:attr:info")
-    public R info(@PathVariable("attrId") Long attrId){
-		//AttrEntity attr = attrService.getById(attrId);
+    public R info(@PathVariable("attrId") Long attrId)
+    {
+        //AttrEntity attr = attrService.getById(attrId);
 
         AttrRespVo respVo = attrService.getAttrInfo(attrId);
 
@@ -68,8 +86,9 @@ public class AttrController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("product:attr:save")
-    public R save(@RequestBody AttrVo attrVo){
-		attrService.saveAttr(attrVo);
+    public R save(@RequestBody AttrVo attrVo)
+    {
+        attrService.saveAttr(attrVo);
 
         return R.ok();
     }
@@ -79,9 +98,19 @@ public class AttrController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("product:attr:update")
-    public R update(@RequestBody AttrVo attrVo){
-		attrService.updateAttr(attrVo);
+    public R update(@RequestBody AttrVo attrVo)
+    {
+        attrService.updateAttr(attrVo);
 
+        return R.ok();
+    }
+
+    @PostMapping("/update/{spuId}")
+    //@RequiresPermissions("product:attr:update")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId,
+                           @RequestBody List<ProductAttrValueEntity> entities)
+    {
+        productAttrValueService.updateSpuAttr(spuId, entities);
         return R.ok();
     }
 
@@ -90,8 +119,9 @@ public class AttrController {
      */
     @RequestMapping("/delete")
     //@RequiresPermissions("product:attr:delete")
-    public R delete(@RequestBody Long[] attrIds){
-		attrService.removeByIds(Arrays.asList(attrIds));
+    public R delete(@RequestBody Long[] attrIds)
+    {
+        attrService.removeByIds(Arrays.asList(attrIds));
 
         return R.ok();
     }

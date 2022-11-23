@@ -1,7 +1,10 @@
 package com.kyson.mall.ware.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -17,10 +20,24 @@ import com.kyson.mall.ware.service.WareInfoService;
 public class WareInfoServiceImpl extends ServiceImpl<WareInfoDao, WareInfoEntity> implements WareInfoService {
 
     @Override
-    public PageUtils queryPage(Map<String, Object> params) {
+    public PageUtils queryPage(Map<String, Object> params)
+    {
+
+        QueryWrapper<WareInfoEntity> wareInfoQueryWrapper = new QueryWrapper<>();
+
+        String key = params.get("key").toString();
+
+        if (!StringUtils.isEmpty(key))
+        {
+            wareInfoQueryWrapper.eq("id", key)
+                    .or().like("id", key)
+                    .or().like("address", key)
+                    .or().like("areacode", key);
+        }
+
         IPage<WareInfoEntity> page = this.page(
                 new Query<WareInfoEntity>().getPage(params),
-                new QueryWrapper<WareInfoEntity>()
+                wareInfoQueryWrapper
         );
 
         return new PageUtils(page);
