@@ -4,21 +4,17 @@ package com.kyson.mall.product;
 //import com.aliyun.oss.OSSClient;
 //import com.aliyun.oss.OSSClientBuilder;
 //import com.aliyun.oss.OSSException;
+
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.nacos.shaded.io.grpc.internal.JsonUtil;
 import com.kyson.mall.product.entity.BrandEntity;
 import com.kyson.mall.product.entity.GatewayInfoVo;
 import com.kyson.mall.product.entity.GatewayInfoVos;
 import com.kyson.mall.product.service.BrandService;
-import com.netflix.client.ClientException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,7 +30,7 @@ class KkmallProductApplicationTests {
     void contextLoads()
     {
         BrandEntity brandEntity = new BrandEntity();
-
+        //test
         brandEntity.setDescript("test");
         brandEntity.setName("test");
         //brandService.save(brandEntity);
