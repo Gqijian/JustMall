@@ -4,6 +4,7 @@ package com.kyson.mall.product;
 //import com.aliyun.oss.OSSClient;
 //import com.aliyun.oss.OSSClientBuilder;
 //import com.aliyun.oss.OSSException;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.nacos.shaded.io.grpc.internal.JsonUtil;
 import com.kyson.mall.product.entity.BrandEntity;
@@ -43,6 +44,16 @@ class KkmallProductApplicationTests {
         params.put("page",1);
         String s = JSON.toJSONString(params);
         System.out.println(s);
+    }
+
+    @Test
+    void jsonTest()
+    {
+        String jsonMessage = "[{'num':'成绩', '外语':88, '历史':65, '地理':99, 'object':{'aaa':'1111','bbb':'2222','cccc':'3333'}}," +
+ "{'num':'兴趣', '外语':28, '历史':45, '地理':19, 'object':{'aaa':'11a11','bbb':'2222','cccc':'3333'}}," +
+ "{'num':'爱好', '外语':48, '历史':62, '地理':39, 'object':{'aaa':'11c11','bbb':'2222','cccc':'3333'}}]";
+    JSONArray myJsonArray = JSONArray.parseArray(jsonMessage);
+        System.out.println(myJsonArray.get(0).toString());
     }
 
     public static void main(String[] args)
