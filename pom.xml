@@ -18,6 +18,7 @@
         <module>kkmall-member</module>
         <module>kkmall-order</module>
         <module>kkmall-product</module>
+        <module>kkmall-search</module>
         <module>kkmall-third-party</module>
         <module>kkmall-ware</module>
         <module>renren-fast</module>
