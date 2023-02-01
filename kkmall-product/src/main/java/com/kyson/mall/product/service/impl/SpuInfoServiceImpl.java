@@ -1,10 +1,17 @@
 package com.kyson.mall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kyson.common.to.SkuReductionTo;
 import com.kyson.common.to.SpuBoundTo;
+import com.kyson.common.to.es.SkuEsModel;
+import com.kyson.common.utils.PageUtils;
+import com.kyson.common.utils.Query;
 import com.kyson.common.utils.R;
+import com.kyson.mall.product.dao.SpuInfoDao;
 import com.kyson.mall.product.entity.*;
 import com.kyson.mall.product.feign.CouponFeignService;
 import com.kyson.mall.product.service.*;
@@ -12,21 +19,13 @@ import com.kyson.mall.product.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.kyson.common.utils.PageUtils;
-import com.kyson.common.utils.Query;
-
-import com.kyson.mall.product.dao.SpuInfoDao;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("spuInfoService")
@@ -55,6 +54,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private CouponFeignService couponFeignService;
+
+    @Autowired
+    private BrandService brandService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -233,6 +238,42 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void up(Long spuId)
+    {
+        //1、查出当前spuid对应的所有sku信息，品牌的名字
+        List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+
+        //TODO 查询当前sku 所有的可以被检索的规格属性 放在外边查一遍就行
+
+        //2、封装信息
+        List<SkuEsModel> upProducts = skus.stream().map(sku -> {
+            //组装数据
+            SkuEsModel esModel = new SkuEsModel();
+            BeanUtils.copyProperties(sku, esModel);
+
+            esModel.setSkuPrice(sku.getPrice());
+            esModel.setSkuImg(sku.getSkuDefaultImg());
+
+            //TODO  发送远程调用 库存系统查询是否有库存
+
+            //TODO  热度评分  0
+
+            //TODO  品牌和分类信息
+            BrandEntity brandEntity = brandService.getById(esModel.getBrandId());
+            esModel.setBrandName(brandEntity.getName());
+            esModel.setBrandImg(brandEntity.getLogo());
+
+            CategoryEntity category = categoryService.getById(esModel.getCatalogId());
+            esModel.setCatalogName(category.getName());
+
+
+            return esModel;
+        }).collect(Collectors.toList());
+
+        //TODO 保存在 elasticSearch 中保存
     }
 
 }

@@ -1,20 +1,15 @@
 package com.kyson.mall.product.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import com.kyson.mall.product.vo.SpuSaveVo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.kyson.mall.product.entity.SpuInfoEntity;
-import com.kyson.mall.product.service.SpuInfoService;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.R;
+import com.kyson.mall.product.entity.SpuInfoEntity;
+import com.kyson.mall.product.service.SpuInfoService;
+import com.kyson.mall.product.vo.SpuSaveVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -30,6 +25,17 @@ import com.kyson.common.utils.R;
 public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
+
+    /**
+     * 上架 /product/spuinfo/{spuId}/up
+     */
+    @RequestMapping("/{spuId}/up")
+    //@RequiresPermissions("product:spuinfo:list")
+    public R spuUp(@PathVariable("spuId")Long spuId){
+
+        spuInfoService.up(spuId);
+        return R.ok();
+    }
 
     /**
      * 列表
