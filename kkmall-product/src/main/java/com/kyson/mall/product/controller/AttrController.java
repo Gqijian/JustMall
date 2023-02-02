@@ -37,7 +37,7 @@ public class AttrController {
 
 
     @GetMapping("/base/listforspu/{spuId}")
-    public R baseAttrListForSpu(@PathVariable("spuId") String spuId)
+    public R baseAttrListForSpu(@PathVariable("spuId") Long spuId)
     {
 
         List<ProductAttrValueEntity> entities = productAttrValueService.baseAttrListForSpu(spuId);

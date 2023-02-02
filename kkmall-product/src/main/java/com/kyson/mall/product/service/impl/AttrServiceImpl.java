@@ -1,13 +1,21 @@
 package com.kyson.mall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kyson.common.constant.ProductConstant;
+import com.kyson.common.utils.PageUtils;
+import com.kyson.common.utils.Query;
 import com.kyson.mall.product.dao.AttrAttrgroupRelationDao;
+import com.kyson.mall.product.dao.AttrDao;
 import com.kyson.mall.product.dao.AttrGroupDao;
 import com.kyson.mall.product.dao.CategoryDao;
 import com.kyson.mall.product.entity.AttrAttrgroupRelationEntity;
+import com.kyson.mall.product.entity.AttrEntity;
 import com.kyson.mall.product.entity.AttrGroupEntity;
 import com.kyson.mall.product.entity.CategoryEntity;
+import com.kyson.mall.product.service.AttrService;
 import com.kyson.mall.product.service.CategoryService;
 import com.kyson.mall.product.vo.AttrGroupRelationVo;
 import com.kyson.mall.product.vo.AttrRespVo;
@@ -16,22 +24,12 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.kyson.common.utils.PageUtils;
-import com.kyson.common.utils.Query;
-
-import com.kyson.mall.product.dao.AttrDao;
-import com.kyson.mall.product.entity.AttrEntity;
-import com.kyson.mall.product.service.AttrService;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("attrService")
@@ -285,6 +283,17 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
         PageUtils pageUtils = new PageUtils(page);
         return pageUtils;
+    }
+
+    @Override
+    public List<Long> selectSearchAttrIds(List<Long> attrIds)
+    {
+        /**
+         * select attr_id from pms_attr where attr_id in (?) and search_type = 1
+         */
+
+
+        return baseMapper.selectSearchAttrIds(attrIds);
     }
 
 }

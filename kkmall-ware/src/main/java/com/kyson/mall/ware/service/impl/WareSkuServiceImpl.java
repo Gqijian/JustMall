@@ -1,25 +1,24 @@
 package com.kyson.mall.ware.service.impl;
 
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.kyson.common.utils.R;
-import com.kyson.mall.ware.entity.WareInfoEntity;
-import com.kyson.mall.ware.feign.ProducktFeignService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Map;
-
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.Query;
-
+import com.kyson.common.utils.R;
 import com.kyson.mall.ware.dao.WareSkuDao;
 import com.kyson.mall.ware.entity.WareSkuEntity;
+import com.kyson.mall.ware.feign.ProducktFeignService;
 import com.kyson.mall.ware.service.WareSkuService;
+import com.kyson.mall.ware.vo.SkuHasStockVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 
 @Service("wareSkuService")
@@ -99,6 +98,23 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             wareSkuDao.addStock(skuId, wareId, skuNum);
         }
 
+    }
+
+    @Override
+    public List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds)
+    {
+
+        List<SkuHasStockVo> collect = skuIds.stream().map(skuId -> {
+            SkuHasStockVo vo = new SkuHasStockVo();
+
+            //查询当前总库存
+            //select sum(stock-stock_locked) from wms_ware_sku where sku_id =
+            Long count = baseMapper.getSkuStock(skuId);
+            vo.setSkuId(skuId);
+            vo.setHasStock(count > 0);
+            return vo;
+        }).collect(Collectors.toList());
+        return collect;
     }
 
 }
