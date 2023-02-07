@@ -14,6 +14,7 @@ import com.kyson.common.utils.R;
 import com.kyson.mall.product.dao.SpuInfoDao;
 import com.kyson.mall.product.entity.*;
 import com.kyson.mall.product.feign.CouponFeignService;
+import com.kyson.mall.product.feign.SearchFeignService;
 import com.kyson.mall.product.feign.WareFeignService;
 import com.kyson.mall.product.service.*;
 import com.kyson.mall.product.vo.*;
@@ -62,6 +63,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     private WareFeignService wareFeignService;
+
+    @Autowired
+    private SearchFeignService searchFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -258,7 +262,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         List<Long> searchAttrIds = attrService.selectSearchAttrIds(attrIds);
         Set<Long> idSet = new HashSet<>(searchAttrIds);
 
-
         List<SkuEsModel.Attrs> attrsList = baseAttrs.stream().filter(item -> {
             return idSet.contains(item.getAttrId());
         }).map(item -> {
@@ -298,7 +301,6 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 esModel.setHasStock(finalStockMap.get(sku.getSkuId()));
             }
 
-
             //TODO  热度评分  0
             esModel.setHotScore(0L);
 
@@ -316,6 +318,15 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }).collect(Collectors.toList());
 
         //TODO 保存在 elasticSearch 中保存
+        R r = searchFeignService.productStatusUp(upProducts);
+        if(r.getCode() == 0){
+            //远程调用成功
+            //TODO 修改 spu 状态
+            //this.baseMapper.upda
+        }else {
+            //远程调用失败
+
+        }
     }
 
 }
