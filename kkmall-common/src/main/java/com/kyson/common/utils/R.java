@@ -8,6 +8,8 @@
 
 package com.kyson.common.utils;
 
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.TypeReference;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -18,21 +20,25 @@ import java.util.Map;
  *
  * @author Mark sunlightcs@gmail.com
  */
-public class R<T> extends HashMap<String, Object> {
+public class R extends HashMap<String, Object> {
 	private static final long serialVersionUID = 1L;
 
-	private T data;
-
-	public T getData()
-	{
-
-		return data;
+	public R setData(Object data){
+		put("data", data);
+		return this;
 	}
 
-	public void setData(T data)
-	{
+	/**
+	 * 复杂类型需要传入 alibaba 提供的 TypeReference
+	 * @param typeReference
+	 * @return
+	 */
+	public <T> T getData(TypeReference<T> typeReference){
 
-		this.data = data;
+		Object data = get("data");//默认是map类型
+		String json = JSON.toJSONString(data);
+		T t = JSON.parseObject(json, typeReference);
+		return t;
 	}
 
 	public R() {

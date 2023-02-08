@@ -33,19 +33,18 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     @Override
     public PageUtils queryPage(Map<String, Object> params)
     {
+
         QueryWrapper<WareSkuEntity> wareSkuQueryWrapper = new QueryWrapper<>();
 
         String skuId = params.get("skuId").toString();
 
-        if (!StringUtils.isEmpty(skuId))
-        {
+        if (!StringUtils.isEmpty(skuId)) {
             wareSkuQueryWrapper.eq("sku_id", skuId);
         }
 
         String wareId = params.get("wareId").toString();
 
-        if (!StringUtils.isEmpty(wareId))
-        {
+        if (!StringUtils.isEmpty(wareId)) {
             wareSkuQueryWrapper.eq("ware_id", wareId);
         }
 
@@ -63,8 +62,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
     {
         //判断如果还没有这个库存记录 新增
         List<WareSkuEntity> entities = wareSkuDao.selectList(new QueryWrapper<WareSkuEntity>().eq("sku_id", skuId).eq("ware_id", wareId));
-        if (entities == null || entities.size() < 1)
-        {
+        if (entities == null || entities.size() < 1) {
 
             WareSkuEntity skuEntity = new WareSkuEntity();
             skuEntity.setSkuId(skuId);
@@ -77,23 +75,19 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
              * 1、try catch
              * 2、还有什么办法 异常不回滚
              */
-            try
-            {
+            try {
                 R info = producktFeignService.info(skuId);
-                if (info.getCode() == 0)
-                {
+                if (info.getCode() == 0) {
                     Map<String, Object> data = (Map<String, Object>) info.get("data");
                     skuEntity.setSkuName(data.get("skuName").toString());
                 }
-            } catch (Exception e)
-            {
+            } catch (Exception e) {
 
             }
 
             wareSkuDao.insert(skuEntity);
 
-        } else
-        {
+        } else {
 
             wareSkuDao.addStock(skuId, wareId, skuNum);
         }
@@ -111,7 +105,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             //select sum(stock-stock_locked) from wms_ware_sku where sku_id =
             Long count = baseMapper.getSkuStock(skuId);
             vo.setSkuId(skuId);
-            vo.setHasStock(count > 0);
+            vo.setHasStock(count == null ? false : count > 0);
             return vo;
         }).collect(Collectors.toList());
         return collect;

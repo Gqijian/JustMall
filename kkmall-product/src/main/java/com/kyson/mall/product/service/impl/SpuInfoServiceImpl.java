@@ -1,10 +1,12 @@
 package com.kyson.mall.product.service.impl;
 
+import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kyson.common.constant.ProductConstant;
 import com.kyson.common.to.SkuReductionTo;
 import com.kyson.common.to.SpuBoundTo;
 import com.kyson.common.to.es.SkuEsModel;
@@ -68,7 +70,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     private SearchFeignService searchFeignService;
 
     @Override
-    public PageUtils queryPage(Map<String, Object> params) {
+    public PageUtils queryPage(Map<String, Object> params)
+    {
+
         IPage<SpuInfoEntity> page = this.page(
                 new Query<SpuInfoEntity>().getPage(params),
                 new QueryWrapper<SpuInfoEntity>()
@@ -80,6 +84,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     /**
      * //TODO 高级部分完善
+     *
      * @param vo
      */
     @Transactional(rollbackFor = Exception.class)
@@ -113,11 +118,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
             AttrEntity id = attrService.getById(attr.getAttrId());
 
-            if (!ObjectUtils.isEmpty(id))
-            {
+            if (!ObjectUtils.isEmpty(id)) {
                 valueEntity.setAttrName(id.getAttrName());
-            } else
-            {
+            } else {
                 valueEntity.setAttrName("");
             }
             valueEntity.setAttrValue(valueEntity.getAttrValue());
@@ -133,20 +136,19 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         BeanUtils.copyProperties(bounds, spuBoundTo);
         spuBoundTo.setSpuId(spuInfoEntity.getId());
         R r = couponFeignService.saveSpuBounds(spuBoundTo);
-        if(r.getCode() != 0){
+        if (r.getCode() != 0) {
             log.error("远程保存spu积分信息失败");
         }
 
         //保存当前spu对应的所有sku信息
         // sku 基本信息 pms_sku_info
         List<Skus> skus = vo.getSkus();
-        if(skus != null && skus.size() > 0){
-            skus.forEach(item ->{
+        if (skus != null && skus.size() > 0) {
+            skus.forEach(item -> {
 
                 String defaultImage = "";
-                for (Images image : item.getImages())
-                {
-                    if(image.getDefaultImg() == 1){
+                for (Images image : item.getImages()) {
+                    if (image.getDefaultImg() == 1) {
                         defaultImage = image.getImgUrl();
                     }
                 }
@@ -194,9 +196,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 BeanUtils.copyProperties(item, skuReductionTo);
                 skuReductionTo.setSkuId(skuId);
 
-                if(skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal(0)) == 1){
+                if (skuReductionTo.getFullCount() > 0 || skuReductionTo.getFullPrice().compareTo(new BigDecimal(0)) == 1) {
                     R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
-                    if(r1.getCode() != 0){
+                    if (r1.getCode() != 0) {
                         log.error("远程保存sku优惠信息失败");
                     }
                 }
@@ -210,30 +212,32 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Override
     public void saveBaseSpuInfo(SpuInfoEntity spuInfoEntity)
     {
+
         this.baseMapper.insert(spuInfoEntity);
     }
 
     @Override
     public PageUtils queryPageByCondition(Map<String, Object> params)
     {
+
         QueryWrapper<SpuInfoEntity> wrapper = new QueryWrapper<>();
 
         String key = params.get("key").toString();
-        if(!StringUtils.isEmpty(key)){
+        if (!StringUtils.isEmpty(key)) {
             wrapper.and(w -> {
-               w.eq("id", key).or().like("spu_name", key);
+                w.eq("id", key).or().like("spu_name", key);
             });
         }
         String status = params.get("status").toString();
-        if(!StringUtils.isEmpty(status)){
+        if (!StringUtils.isEmpty(status)) {
             wrapper.eq("publish_status", status);
         }
         String brandId = params.get("brandId").toString();
-        if(!StringUtils.isEmpty(brandId)){
+        if (!StringUtils.isEmpty(brandId)) {
             wrapper.eq("brand_id", brandId);
         }
         String catelogId = params.get("catelogId").toString();
-        if(!StringUtils.isEmpty(catelogId)){
+        if (!StringUtils.isEmpty(catelogId)) {
             wrapper.eq("catelog_id", catelogId);
         }
 
@@ -276,10 +280,10 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         Map<Long, Boolean> stockMap = null;
         //远程调用可能有网络问题
         try {
-            R<List<SkuHasStockVo>> skuHasStock = wareFeignService.getSkuHasStock(skuIdList);
-            stockMap = skuHasStock.getData().stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
+            R skuHasStock = wareFeignService.getSkuHasStock(skuIdList);
+            stockMap = skuHasStock.getData(new TypeReference<List<SkuHasStockVo>>(){}).stream().collect(Collectors.toMap(SkuHasStockVo::getSkuId, item -> item.getHasStock()));
 
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error("库存服务查询异常 原因 {}", e);
         }
 
@@ -295,9 +299,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             esModel.setSkuImg(sku.getSkuDefaultImg());
 
             //拿到是否有库存
-            if(finalStockMap == null){
+            if (finalStockMap == null) {
                 esModel.setHasStock(true);
-            }else {
+            } else {
                 esModel.setHasStock(finalStockMap.get(sku.getSkuId()));
             }
 
@@ -319,13 +323,13 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
         //TODO 保存在 elasticSearch 中保存
         R r = searchFeignService.productStatusUp(upProducts);
-        if(r.getCode() == 0){
+        if (r.getCode() == 0) {
             //远程调用成功
             //TODO 修改 spu 状态
-            //this.baseMapper.upda
-        }else {
+            this.baseMapper.updateSpuStatus(spuId, ProductConstant.StatusEnum.SPU_UP.getCode());
+        } else {
             //远程调用失败
-
+            //TODO 重复调用 接口的幂等性 重试机制
         }
     }
 
