@@ -1,26 +1,24 @@
 package com.kyson.mall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kyson.common.utils.PageUtils;
+import com.kyson.common.utils.Query;
+import com.kyson.mall.product.dao.CategoryDao;
+import com.kyson.mall.product.entity.CategoryEntity;
 import com.kyson.mall.product.service.CategoryBrandRelationService;
+import com.kyson.mall.product.service.CategoryService;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.kyson.common.utils.PageUtils;
-import com.kyson.common.utils.Query;
-
-import com.kyson.mall.product.dao.CategoryDao;
-import com.kyson.mall.product.entity.CategoryEntity;
-import com.kyson.mall.product.service.CategoryService;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service("categoryService")
@@ -84,6 +82,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         if(!StringUtils.isEmpty(category.getName())){
             categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
         }
+    }
+
+    @Override
+    public List<CategoryEntity> getLevel1Category()
+    {
+        List<CategoryEntity> categoryEntities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        return categoryEntities;
     }
 
     private List<Long> findParentPath(Long catelogId, List<Long> paths)
