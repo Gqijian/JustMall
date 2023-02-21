@@ -47,8 +47,37 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  *
  * 5、统一的异常处理 @RestControllerAdvice
  *
+ * 整合 redisson 作为分布式锁
+ *
+ * 整合 springcache 简化缓存开发 spring-boot-starter-cache spring-boot-starter-data-redis
+ * 配置
+ *  1、自动配置了哪些
+ *      CacheAutoConfiguration 会导入 RedisCacheAutoConfiguration
+ *      自动配置好了 缓存管理器 RedisCacheManager
+ *  2、写配置
+ *  spring.cache.type = redis
+ *
+ *  3.写注解
+ *      开启缓存 @EnableCaching
+ *      只需要注解就能完成缓存操作
+ *  1 缓存中有，方法不调用
+ *  2 key默认自动生成，缓存名字 catagory::SimpleKey[]
+ *  3 缓存的 value 的值 默认使用 jdk 序列化机制，将序列化后的数据存到 redis
+ *  4 默认时间 ttl -1 用不过期
+ *
+ *  自定义
+ *      自定义生成的 key key 属性指定，接受一个 spel表达式 如果要自己写 那要带上 ''
+ *      自定义存活的时间 spring配置文件中修改 ttl spring.cache.redis.time-to-live = 360000
+ *      数据保存为json
+ *          CacheAutoConfiguration -> RedisCacheAutoConfiguration ->
+ *          自动配置了 redisCacheManager 初始化了所有缓存 -> 每个缓存决定使用什么配置
+ *          -> RedisCacheAutoConfiguration  如果有就用自己的 没有就用默认的
+ *          -> 想改缓存配置  只需要给容器中放入一个 RedisCacheAutoConfiguration
+ *          -> 就会应用到当前 RedisCacheManager 管理的所有缓存分区中
  *
  */
+
+
 @EnableFeignClients(basePackages = "com.kyson.mall.product.feign")
 @EnableDiscoveryClient
 @MapperScan("com.kyson.mall.product.dao")

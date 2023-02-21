@@ -55,6 +55,12 @@ spring:
           filters:
             - RewritePath=/api/?(?<segment>.*), /renren-fast/$\{segment}
 
+        #此配要放在最后面
+        - id: kysonmall_host_route
+          uri: lb://kkmall-product
+          predicates:
+            - Host=**.kysonmall.com,kysonmall.com
+
 ## 前端项目，/api
 ## 路径重写 将 http://localhost:88/api/captcha.jpg 重写为 http://localhost:88/renren-fast/captcha.jpg
 

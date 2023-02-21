@@ -12,19 +12,38 @@ import com.kyson.mall.product.entity.GatewayInfoVo;
 import com.kyson.mall.product.entity.GatewayInfoVos;
 import com.kyson.mall.product.service.BrandService;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootTest
 class KkmallProductApplicationTests {
 
     @Autowired
     BrandService brandService;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    RedissonClient redissonClient;
+
+    @Test
+    public void testRedisson(){
+
+        System.out.println(redissonClient);
+    }
+    @Test
+    public void testStringRedisTemplate(){
+
+        ValueOperations<String, String> opsForValue = stringRedisTemplate.opsForValue();
+        opsForValue.set("hello", " world " + UUID.randomUUID().toString());
+
+    }
 
     @Test
     void contextLoads()
