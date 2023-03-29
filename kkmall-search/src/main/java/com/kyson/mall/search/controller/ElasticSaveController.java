@@ -1,9 +1,9 @@
-package com.kyson.kkmall.search.controller;
+package com.kyson.mall.search.controller;
 
 import com.kyson.common.exception.BizCodeEnum;
 import com.kyson.common.to.es.SkuEsModel;
 import com.kyson.common.utils.R;
-import com.kyson.kkmall.search.service.ProductSaveService;
+import com.kyson.mall.search.service.ProductSaveService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;

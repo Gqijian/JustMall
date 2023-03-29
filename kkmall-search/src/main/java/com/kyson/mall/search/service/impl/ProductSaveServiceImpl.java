@@ -1,10 +1,10 @@
-package com.kyson.kkmall.search.service.impl;
+package com.kyson.mall.search.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.kyson.common.to.es.SkuEsModel;
-import com.kyson.kkmall.search.config.ElasticSearchConfig;
-import com.kyson.kkmall.search.constant.EsConstant;
-import com.kyson.kkmall.search.service.ProductSaveService;
+import com.kyson.mall.search.config.ElasticSearchConfig;
+import com.kyson.mall.search.constant.EsConstant;
+import com.kyson.mall.search.service.ProductSaveService;
 import lombok.extern.slf4j.Slf4j;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;

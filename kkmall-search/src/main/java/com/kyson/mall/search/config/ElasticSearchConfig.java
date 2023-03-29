@@ -1,4 +1,4 @@
-package com.kyson.kkmall.search.config;
+package com.kyson.mall.search.config;
 
 import org.apache.http.HttpHost;
 import org.elasticsearch.client.RequestOptions;

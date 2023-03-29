@@ -1,4 +1,4 @@
-package com.kyson.kkmall.search.service;
+package com.kyson.mall.search.service;
 
 import com.kyson.common.to.es.SkuEsModel;
 

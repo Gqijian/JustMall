@@ -1,7 +1,7 @@
-package com.kyson.kkmall.search;
+package com.kyson.mall.search;
 
 import com.alibaba.fastjson2.JSON;
-import com.kyson.kkmall.search.config.ElasticSearchConfig;
+import com.kyson.mall.search.config.ElasticSearchConfig;
 import lombok.Data;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
@@ -35,6 +35,14 @@ class KkmallSearchApplicationTests {
     class EsUser{
         private String userName;
         private String age;
+    }
+
+    @Test
+    public void testRedisson(){
+
+        Integer[] aa = {1,2};
+        String s = JSON.toJSONString(aa);
+        System.out.println("aaaaaaaaaaa" + s);
     }
 
     public void searchData() throws IOException
