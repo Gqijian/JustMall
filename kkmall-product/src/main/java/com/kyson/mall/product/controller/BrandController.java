@@ -1,27 +1,19 @@
 package com.kyson.mall.product.controller;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-
+import com.kyson.common.utils.PageUtils;
+import com.kyson.common.utils.R;
 import com.kyson.common.valid.AddGroup;
 import com.kyson.common.valid.UpdateGroup;
 import com.kyson.common.valid.UpdateStatusGroup;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.kyson.mall.product.entity.BrandEntity;
 import com.kyson.mall.product.service.BrandService;
-import com.kyson.common.utils.PageUtils;
-import com.kyson.common.utils.R;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -58,6 +50,13 @@ public class BrandController {
 		BrandEntity brand = brandService.getById(brandId);
 
         return R.ok().put("brand", brand);
+    }
+
+    @RequestMapping("/infos")
+    public R brandInfos(@RequestParam("brandIds") List<Long> brandIds){
+        List<BrandEntity> brands = brandService.getBrandsByIds(brandIds);
+
+        return R.ok().put("brands", brands);
     }
 
     /**

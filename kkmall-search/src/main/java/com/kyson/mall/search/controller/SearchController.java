@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Controller
@@ -16,9 +17,10 @@ public class SearchController {
     @Autowired
     private MallSearchService mallSearchService;
     @GetMapping("/list.html")
-    public String listPage(SearchParam param, Model model) throws IOException
+    public String listPage(SearchParam param, Model model, HttpServletRequest request) throws IOException
     {
 
+        param.set_queryString(request.getQueryString());
         //根据传递来的参数 去es 中检索商品
         SearchResult result = mallSearchService.search(param);
         model.addAttribute("result", result);

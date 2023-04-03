@@ -9,6 +9,7 @@ import com.kyson.mall.search.constant.EsConstant;
 import com.kyson.mall.search.feign.ProductFeignService;
 import com.kyson.mall.search.service.MallSearchService;
 import com.kyson.mall.search.vo.AttrResponseVo;
+import com.kyson.mall.search.vo.BrandVo;
 import com.kyson.mall.search.vo.SearchParam;
 import com.kyson.mall.search.vo.SearchResult;
 import org.apache.lucene.search.join.ScoreMode;
@@ -37,6 +38,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -233,7 +236,7 @@ public class MallSearchServiceImpl implements MallSearchService {
 
                 SkuEsModel skuEsModel = JSON.parseObject(sourceAsString, SkuEsModel.class);
 
-                if(!StringUtils.isEmpty(param.getKeyword())){
+                if (!StringUtils.isEmpty(param.getKeyword())) {
                     HighlightField skuTitle = hit.getHighlightFields().get("skuTitle");
                     String string = skuTitle.getFragments()[0].string();
                     skuEsModel.setSkuTitle(string);
@@ -268,6 +271,8 @@ public class MallSearchServiceImpl implements MallSearchService {
             }).collect(Collectors.toList());
 
             attrVo.setAttrValue(attr_value_agg);
+
+            attrVos.add(attrVo);
         }
 
         result.setAttrs(attrVos);
@@ -291,7 +296,7 @@ public class MallSearchServiceImpl implements MallSearchService {
 
             brandVos.add(brandVo);
         }
-        
+
         // 当前商品涉及的所有分类信息 f4 打开Hierarchy
         ParsedLongTerms catalog_agg = response.getAggregations().get("catalog_agg");
 
@@ -325,37 +330,82 @@ public class MallSearchServiceImpl implements MallSearchService {
         result.setTotalPages(totalPages);
 
         List<Integer> pageNavs = new ArrayList<>();
-        for (int i = 1; i <= totalPages; i++)
-        {
+        for (int i = 1; i <= totalPages; i++) {
             pageNavs.add(i);
         }
         result.setPageNavs(pageNavs);
 
         //面包屑导航功能
-        List<SearchResult.NavVo> navVos = param.getAttrs().stream().map(attr -> {
+        if (param.getAttrs() != null && param.getAttrs().size() > 0) {
+            List<SearchResult.NavVo> navVos = param.getAttrs().stream().map(attr -> {
 
+                SearchResult.NavVo navVo = new SearchResult.NavVo();
+                String[] split = attr.split("_");
+                navVo.setNavValue(split[1]);
+
+                R r = productFeignService.attrInfo(Long.parseLong(split[0]));
+                result.getAttrIds().add(Long.parseLong(split[0]));
+                if (r.getCode() == 0) {
+                    AttrResponseVo data = r.getData("attr", new TypeReference<AttrResponseVo>() {
+                    });
+
+                    navVo.setNavName(data.getAttrName());
+                } else {
+                    navVo.setNavName(split[0]);
+                }
+
+                //取消面包屑之后 跳转到哪里
+                //拿到所有的查询条件 去掉当前的
+
+                String replace = replaceQueryString(param, attr, "attrs");
+                navVo.setLink("http://search.kysonmall.com/list.html?" + replace);
+
+                return navVo;
+            }).collect(Collectors.toList());
+
+            result.setNavs(navVos);
+        }
+
+        if(param.getBrandId() != null && param.getBrandId().size() > 0){
+
+            List<SearchResult.NavVo> navs = result.getNavs();
             SearchResult.NavVo navVo = new SearchResult.NavVo();
-            String[] split = attr.split("_");
-            navVo.setNavValue(split[1]);
 
-            R r = productFeignService.attrInfo(Long.parseLong(split[0]));
-            if (r.getCode() == 0){
-                AttrResponseVo data = r.getData("attr", new TypeReference<AttrResponseVo>() {
+            //TODO 远程查询所有品牌
+            R r = productFeignService.brandInfos(param.getBrandId());
+            if(r.getCode() == 0){
+                List<BrandVo> brands = r.getData("brands", new TypeReference<List<BrandVo>>() {
                 });
+                StringBuffer buffer = new StringBuffer();
+                String replace = "";
+                for (BrandVo brandVo: brands) {
+                    buffer.append(brandVo.getBrandName()+";");
+                    replace = replaceQueryString(param, brandVo.getBrandId()+"", "brandId");
+                }
 
-                navVo.setNavName(data.getAttrName());
-            }else {
-                navVo.setNavName(split[0]);
+                navVo.setNavValue(buffer.toString());
+                navVo.setLink("http://search.kysonmall.com/list.html?" + replace);
             }
 
-            //取消面包屑之后 跳转到哪里
+            navs.add(navVo);
+        }
 
-            return navVo;
-        }).collect(Collectors.toList());
-
-        result.setNavs(navVos);
-
+        //TODO 分类 不需要导航取消
 
         return result;
+    }
+
+    private static String replaceQueryString(SearchParam param, String value, String key)
+    {
+
+        String encode = "";
+        try {
+            encode = URLEncoder.encode(value, "utf-8");//URLEncoder.DEFAULT
+            encode.replace("+", "%20");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        String replace = param.get_queryString().replace("&"+key+"=" + encode, "");
+        return replace;
     }
 }

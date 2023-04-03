@@ -3,6 +3,7 @@ package com.kyson.mall.search.vo;
 import com.kyson.common.to.es.SkuEsModel;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -36,7 +37,9 @@ public class SearchResult {
     //====== 以上为返给页面的所有信息 ========
 
     //面包屑 导航
-    private List<NavVo> navs;
+    private List<NavVo> navs = new ArrayList<>();
+
+    private List<Long> attrIds = new ArrayList<>();
 
     @Data
     public static class NavVo{
