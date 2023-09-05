@@ -3,6 +3,7 @@ package com.kyson.mall.ware.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.mall.ware.entity.WareInfoEntity;
+import com.kyson.mall.ware.vo.FareVo;
 
 import java.util.Map;
 
@@ -16,5 +17,14 @@ import java.util.Map;
 public interface WareInfoService extends IService<WareInfoEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    /**
+     *
+     * 根据用户的收货地址 计算运费
+     *
+     * @param addrId
+     * @return
+     */
+    FareVo getFare(Long addrId);
 }
 

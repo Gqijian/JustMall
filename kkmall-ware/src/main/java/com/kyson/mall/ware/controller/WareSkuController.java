@@ -1,10 +1,13 @@
 package com.kyson.mall.ware.controller;
 
+import com.kyson.common.exception.BizCodeEnum;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.R;
 import com.kyson.mall.ware.entity.WareSkuEntity;
+import com.kyson.common.exception.NoStockException;
 import com.kyson.mall.ware.service.WareSkuService;
 import com.kyson.mall.ware.vo.SkuHasStockVo;
+import com.kyson.mall.ware.vo.WareSkuLockVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +29,18 @@ import java.util.Map;
 public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
+
+    @PostMapping("/lock/order")
+    public R orderLockStock(@RequestBody WareSkuLockVo vo){
+        try {
+            Boolean lockStock = wareSkuService.orderLockStock(vo);
+            return R.ok();
+        }catch (NoStockException e){
+
+            return R.error(BizCodeEnum.NO_STOCK_EXCEPTION.getCode(), BizCodeEnum.NO_STOCK_EXCEPTION.getMsg());
+        }
+
+    }
 
     @PostMapping("/hasstock")
     public R getSkuHasStock(@RequestBody List<Long> skuIds){

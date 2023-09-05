@@ -23,6 +23,10 @@
         <module>kkmall-ware</module>
         <module>renren-fast</module>
         <module>renren-generator</module>
+        <module>kkmall-auth</module>
+        <module>kkmall-sso-client</module>
+        <module>kkmall-sso-server</module>
+        <module>kkmall-cart</module>
     </modules>
 
 </project>

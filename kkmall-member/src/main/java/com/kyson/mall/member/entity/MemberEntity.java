@@ -2,10 +2,10 @@ package com.kyson.mall.member.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 会员
@@ -88,6 +88,12 @@ public class MemberEntity implements Serializable {
 	 * 启用状态
 	 */
 	private Integer status;
+
+	private String socialUid;
+
+	private String accessToken;
+
+	private Long expiresIn;
 	/**
 	 * 注册时间
 	 */

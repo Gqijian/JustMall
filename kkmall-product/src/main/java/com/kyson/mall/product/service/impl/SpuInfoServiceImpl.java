@@ -20,6 +20,7 @@ import com.kyson.mall.product.feign.SearchFeignService;
 import com.kyson.mall.product.feign.WareFeignService;
 import com.kyson.mall.product.service.*;
 import com.kyson.mall.product.vo.*;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -87,6 +88,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
      *
      * @param vo
      */
+
+    //Seata AT 分布式事务 不要求超高的并发
+    @GlobalTransactional
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void saveSpuInfo(SpuSaveVo vo)
@@ -331,6 +335,16 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             //远程调用失败
             //TODO 重复调用 接口的幂等性 重试机制
         }
+    }
+
+    @Override
+    public SpuInfoEntity getSpuInfoBySkuId(Long skuId)
+    {
+
+        SkuInfoEntity byId = skuInfoService.getById(skuId);
+        Long spuId = byId.getSpuId();
+        SpuInfoEntity spuInfo = getById(spuId);
+        return spuInfo;
     }
 
 }

@@ -25,6 +25,12 @@
             <groupId>com.kyson.mall</groupId>
             <artifactId>kkmall-common</artifactId>
             <version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -47,7 +53,13 @@
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
 
+        <!-- lettuce有内存泄露的问题，切换为 jedis -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-redis</artifactId>
@@ -76,6 +88,12 @@
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
 
+        <!-- springsession 整合 -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -84,10 +102,10 @@
 
 
         <!--        <dependency>-->
-<!--            <groupId>com.aliyun.oss</groupId>-->
-<!--            <artifactId>aliyun-sdk-oss</artifactId>-->
-<!--            <version>3.15.0</version>-->
-<!--        </dependency>-->
+        <!--            <groupId>com.aliyun.oss</groupId>-->
+        <!--            <artifactId>aliyun-sdk-oss</artifactId>-->
+        <!--            <version>3.15.0</version>-->
+        <!--        </dependency>-->
 
     </dependencies>
 

@@ -59,13 +59,27 @@ spring:
         - id: kysonmall_host_route
           uri: lb://kkmall-product
           predicates:
-            - Host=kysonmall.com
+            - Host=kysonmall.com,item.kysonmall.com
 
         - id: kysonmall_search_route
           uri: lb://kkmall-search
           predicates:
             - Host=search.kysonmall.com
 
+        - id: kysonmall_auth_route
+          uri: lb://kkmall-auth
+          predicates:
+            - Host=auth.kysonmall.com
+            -
+        - id: kysonmall_cart_route
+          uri: lb://kkmall-cart
+          predicates:
+            - Host=cart.kysonmall.com
+
+        - id: kysonmall_order_route
+          uri: lb://kkmall-order
+          predicates:
+            - Host=order.kysonmall.com
 ## 前端项目，/api
 ## 路径重写 将 http://localhost:88/api/captcha.jpg 重写为 http://localhost:88/renren-fast/captcha.jpg
 

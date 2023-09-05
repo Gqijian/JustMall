@@ -1,16 +1,17 @@
 package com.kyson.mall.member.service.impl;
 
-import org.springframework.stereotype.Service;
-import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.Query;
-
 import com.kyson.mall.member.dao.MemberReceiveAddressDao;
 import com.kyson.mall.member.entity.MemberReceiveAddressEntity;
 import com.kyson.mall.member.service.MemberReceiveAddressService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Service("memberReceiveAddressService")
@@ -24,6 +25,12 @@ public class MemberReceiveAddressServiceImpl extends ServiceImpl<MemberReceiveAd
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<MemberReceiveAddressEntity> getAddress(Long memberId)
+    {
+        return this.list(new QueryWrapper<MemberReceiveAddressEntity>().eq("member_id", memberId));
     }
 
 }

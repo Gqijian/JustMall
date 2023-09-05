@@ -42,4 +42,3 @@ logging:
   level:
     com.kyson.mall: debug
 
-

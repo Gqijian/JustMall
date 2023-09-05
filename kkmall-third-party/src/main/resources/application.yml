@@ -23,3 +23,10 @@ alibaba:
     oss:
       endpoint: https://oss-cn-shenzhen.aliyuncs.com
       bucket: kkmall-hello-1
+    sms:
+      host: https://gyytz.market.alicloudapi.com
+      path: /sms/smsSend
+      appcode: 4c0f81d8a7194aa1861d01ef376b552b
+      skin: 16565614329364584123421
+      method: POST
+      template-id: 908e94ccf08b4476ba6c876d13f084ad

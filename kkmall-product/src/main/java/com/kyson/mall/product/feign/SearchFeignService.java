@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
-@FeignClient("kkmall-search")
+@FeignClient("kkmall-product")
 public interface SearchFeignService {
     @PostMapping("/search/save/product")
     public R productStatusUp(@RequestBody List<SkuEsModel> skuEsModels);

@@ -62,7 +62,7 @@ public class IndexController {
     }
 
     @ResponseBody
-    @GetMapping("/index/catalog.json")
+    @GetMapping("/index2/catalog.json")
     public String hello()
     {
 

@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>com.kyson.kkmall</groupId>
+    <groupId>com.kyson.mall</groupId>
     <artifactId>kkmall-search</artifactId>
     <version>0.0.1</version>
     <name>kkmall-search</name>
@@ -28,6 +28,12 @@
             <groupId>com.kyson.mall</groupId>
             <artifactId>kkmall-common</artifactId>
             <version>0.0.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-seata</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -50,6 +56,23 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.lettuce</groupId>
+                    <artifactId>lettuce-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- springsession 整合 -->
+        <dependency>
+            <groupId>org.springframework.session</groupId>
+            <artifactId>spring-session-data-redis</artifactId>
         </dependency>
 
         <dependency>

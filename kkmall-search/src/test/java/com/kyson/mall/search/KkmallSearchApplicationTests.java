@@ -1,6 +1,7 @@
 package com.kyson.mall.search;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
 import com.kyson.mall.search.config.ElasticSearchConfig;
 import lombok.Data;
 import org.elasticsearch.action.index.IndexRequest;
@@ -30,6 +31,48 @@ class KkmallSearchApplicationTests {
 
     @Autowired
     private RestHighLevelClient client;
+
+    @Test
+    public void jsonTest1(){
+        String str = "{\n" +
+                "  \"fileList\": [\n" +
+                "    {\n" +
+                "      \"type\": \"MCU\",\n" +
+                "      \"version\": \"0.9.3\",\n" +
+                "      \"fileName\": \" mcu_0.9.3-u.bin\",\n" +
+                "      \"key\": \"Sha256sum\",\n" +
+                "      \"model\": \"FGS80T0-FBHW\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"type\": \"FW\",\n" +
+                "      \"version\": \"1.7.7\",\n" +
+                "      \"fileName\": \" fw_1.7.7-v.tar.gz\",\n" +
+                "      \"key\": \"Sha256sum\",\n" +
+                "      \"model\": \"FGS80T0-FBHW\"\n" +
+                "    },\n" +
+                "\n" +
+                "    {\n" +
+                "      \"type\": \"MCU\",\n" +
+                "      \"version\": \"0.9.3\",\n" +
+                "      \"fileName\": \" mcu_0.9.3-u.bin\",\n" +
+                "      \"key\": \"Sha256sum\",\n" +
+                "      \"model\": \"FGS80B0-FBHW\"\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"type\": \"FW\",\n" +
+                "      \"version\": \"1.7.7\",\n" +
+                "      \"fileName\": \" fw_1.7.7-v.tar.gz\",\n" +
+                "      \"key\": \"Sha256sum\",\n" +
+                "      \"model\": \"FGS80B0-FBHW\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}\n";
+        JSONObject genConf = JSON.parseObject(str);
+        String fileListStr = genConf.getString("fileList");
+
+        System.out.println(fileListStr);
+        System.out.println();
+    }
 
     @Data
     class EsUser{
