@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.kyson.common.to.mq.OrderTo;
+import com.kyson.common.to.mq.SecKillOrderTo;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.common.utils.Query;
 import com.kyson.common.utils.R;
@@ -13,6 +15,7 @@ import com.kyson.mall.order.constant.OrderConstant;
 import com.kyson.mall.order.dao.OrderDao;
 import com.kyson.mall.order.entity.OrderEntity;
 import com.kyson.mall.order.entity.OrderItemEntity;
+import com.kyson.mall.order.entity.PaymentInfoEntity;
 import com.kyson.mall.order.enume.OrderStatusEnum;
 import com.kyson.mall.order.feign.CartFeignService;
 import com.kyson.mall.order.feign.MemberFeignService;
@@ -21,9 +24,12 @@ import com.kyson.mall.order.feign.WmsFeignService;
 import com.kyson.mall.order.interceptor.LoginUserIntercepor;
 import com.kyson.mall.order.service.OrderItemService;
 import com.kyson.mall.order.service.OrderService;
+import com.kyson.mall.order.service.PaymentInfoService;
 import com.kyson.mall.order.to.OrderCreateTo;
 import com.kyson.mall.order.vo.*;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.aop.framework.AopContext;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -68,7 +74,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     private ProductFeignService productFeignService;
 
     @Autowired
+    private PaymentInfoService paymentInfoService;
+
+    @Autowired
     ThreadPoolExecutor executor;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params)
@@ -79,6 +91,27 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 new QueryWrapper<OrderEntity>()
         );
 
+        return new PageUtils(page);
+    }
+
+    @Override
+    public PageUtils queryPageWithItem(Map<String, Object> params)
+    {
+
+        MemberRespVo respVo = LoginUserIntercepor.loginUser.get();
+
+        IPage<OrderEntity> page = this.page(
+                new Query<OrderEntity>().getPage(params),
+                new QueryWrapper<OrderEntity>().orderByDesc("id")
+        );
+        List<OrderEntity> orderSn = page.getRecords().stream().map(order -> {
+
+            List<OrderItemEntity> itemEntities = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", order.getOrderSn()));
+            order.setItemEntities(itemEntities);
+            return order;
+        }).collect(Collectors.toList());
+
+        page.setRecords(orderSn);
         return new PageUtils(page);
     }
 
@@ -176,7 +209,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             //验价
             BigDecimal payAmount = order.getOrder().getPayAmount();
             BigDecimal payPrice = vo.getPayPrice();
-            if(payAmount.subtract(payPrice).abs().doubleValue() < 0.01){
+            if (payAmount.subtract(payPrice).abs().doubleValue() < 0.01) {
 
                 //验价成功
                 //保存订单
@@ -203,18 +236,21 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 //为了保证高并发，不使用 seata，库存服务自己回滚
                 R r = wmsFeignService.orderLockStock(lockVo);
 
-                if(r.getCode() == 0){
+                if (r.getCode() == 0) {
                     //锁定库存成功
                     responseVo.setOrder(order.getOrder());
+
+                    //TODO 订单创建成功发送消息给 MQ
+                    rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", order.getOrder());
                     return responseVo;
-                }else {
+                } else {
                     //throw new NoStockException()
                     //锁定失败
                     responseVo.setCode(3);
                     return responseVo;
                 }
 
-            }else {
+            } else {
                 responseVo.setCode(2);
                 return responseVo;
             }
@@ -232,6 +268,119 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }
 
          */
+    }
+
+    @Override
+    public OrderEntity getOrderStatus(String orderSn)
+    {
+
+        OrderEntity order = getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+        return order;
+    }
+
+    @Override
+    public void closeOrder(OrderEntity entity)
+    {
+        //查询当前这个订单的最新状态
+        OrderEntity orderEntity = this.getById(entity.getId());
+
+        if (orderEntity.getStatus() == OrderStatusEnum.CREATE_NEW.getCode()) {
+            //关单
+            OrderEntity update = new OrderEntity();
+            update.setId(orderEntity.getId());
+            update.setStatus(OrderStatusEnum.CANCLED.getCode());
+            this.updateById(update);
+            OrderTo orderTo = new OrderTo();
+            BeanUtils.copyProperties(orderEntity, orderTo);
+
+            try {
+                //发给MQ
+                //TODO 保证消息一定会发出去 每一个发送的消息都做好日志记录 (给数据库保存每一个消息的详细信息)
+                //TODO 定期扫描数据库将失败的消息再发送一遍
+                rabbitTemplate.convertAndSend("order-event-exchange", "order.release.other.#", orderTo);
+
+            } catch (Exception e) {
+                //TODO 出现问题以后，将没发送成功的消息重试发送
+            }
+        }
+    }
+
+    @Override
+    public OrderEntity getOrderByOrderSn(String orderSn)
+    {
+
+        OrderEntity order_sn = this.getOne(new QueryWrapper<OrderEntity>().eq("order_sn", orderSn));
+
+        return order_sn;
+    }
+
+    @Override
+    public PayVo getOrderPay(String orderSn)
+    {
+
+        PayVo payVo = new PayVo();
+        OrderEntity order = this.getOrderByOrderSn(orderSn);
+
+        //BigDecimal.ROUND_UP 向上取值
+        BigDecimal bigDecimal = order.getPayAmount().setScale(2, BigDecimal.ROUND_UP);
+        payVo.setTotal_amount(bigDecimal.toString());
+        payVo.setOut_trade_no(orderSn);
+
+        List<OrderItemEntity> order_sn = orderItemService.list(new QueryWrapper<OrderItemEntity>().eq("order_sn", orderSn));
+        OrderItemEntity itemEntity = order_sn.get(0);
+
+        payVo.setSubject(itemEntity.getSkuName());
+        payVo.setBody(itemEntity.getSkuAttrsVals());
+        return payVo;
+    }
+
+    /**
+     * 处理支付宝的结果
+     *
+     * @param vo
+     * @return
+     */
+    @Override
+    public String handlePayResult(PayAsyncVo vo)
+    {
+
+        PaymentInfoEntity paymentInfoEntity = new PaymentInfoEntity();
+        paymentInfoEntity.setAlipayTradeNo(vo.getTrade_no());
+        paymentInfoEntity.setOrderSn(vo.getOut_trade_no());
+        paymentInfoEntity.setPaymentStatus(vo.getTrade_status());
+        paymentInfoEntity.setCallbackTime(vo.getNotify_time());
+
+        paymentInfoService.save(paymentInfoEntity);
+
+        //判断交易状态是否成功
+        if (vo.getTrade_status().equals("TRADE_SUCCESS") || vo.getTrade_status().equals("TRADE_FINISHED")) {
+
+            //支付成功
+            this.baseMapper.updateOrderStatus(vo.getOut_trade_no(), OrderStatusEnum.PAYED.getCode());
+        }
+        return "success";
+    }
+
+    @Override
+    public void createSecKillOrder(SecKillOrderTo secKillOrder)
+    {
+        //TODO 保存订单信息
+        OrderEntity order = new OrderEntity();
+        order.setOrderSn(secKillOrder.getOrderSn());
+        order.setMemberId(secKillOrder.getMemberId());
+
+        order.setStatus(OrderStatusEnum.CREATE_NEW.getCode());
+        BigDecimal multiply = secKillOrder.getSeckillPrice().multiply(new BigDecimal(secKillOrder.getNum()));
+        order.setPayAmount(multiply);
+
+        this.save(order);
+        //TODO 保存订单项信息
+        OrderItemEntity itemEntity = new OrderItemEntity();
+        itemEntity.setOrderSn(secKillOrder.getOrderSn());
+        itemEntity.setRealAmount(multiply);
+        itemEntity.setSkuQuantity(secKillOrder.getNum());
+
+        //TODO 获取当前 sku 详细信息进行设置
     }
 
     /**
@@ -425,8 +574,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
         return itemEntity;
     }
+
     @Transactional(timeout = 30)
-    public void a(){
+    public void a()
+    {
 
         OrderServiceImpl orderService = (OrderServiceImpl) AopContext.currentProxy();
         b();
@@ -434,12 +585,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     @Transactional(propagation = Propagation.REQUIRED)
-    public void b(){
+    public void b()
+    {
 
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void c(){
+    public void c()
+    {
 
     }
 

@@ -22,6 +22,8 @@ public enum BizCodeEnum {
     UNKNOW_EXCEPTION(10000, "未知异常"),
     VAILD_EXCEPTION(10001, "参数格式校验失败"),
 
+    TOO_MANY_REQUEST_EXCEPTION(10002, "请求流量过大"),
+
     PRODUCT_UP_EXCETION(11000, "商品上架异常"),
 
     SMS_CODE_EXCEPTION(10002, "短信验证码频率太高"),

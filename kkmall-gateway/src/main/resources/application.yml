@@ -27,6 +27,13 @@ spring:
           filters:
             - RewritePath=/api/(?<segment>.*), /$\{segment}
 
+        - id: coupon_route
+          uri: lb://kkmall-coupon
+          predicates:
+            - Path=/api/coupon/**
+          filters:
+            - RewritePath=/api/(?<segment>.*), /$\{segment}
+
         - id: third_party_route
           uri: lb://kkmall-third-party
           predicates:
@@ -80,6 +87,16 @@ spring:
           uri: lb://kkmall-order
           predicates:
             - Host=order.kysonmall.com
+
+        - id: kysonmall_member_route
+          uri: lb://kkmall-member
+          predicates:
+            - Host=member.kysonmall.com
+
+        - id: kysonmall_seckill_route
+          uri: lb://kkmall-seckill
+          predicates:
+            - Host=seckill.kysonmall.com
 ## 前端项目，/api
 ## 路径重写 将 http://localhost:88/api/captcha.jpg 重写为 http://localhost:88/renren-fast/captcha.jpg
 

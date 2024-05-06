@@ -1,6 +1,8 @@
 package com.kyson.mall.ware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.kyson.common.to.mq.OrderTo;
+import com.kyson.common.to.mq.StockLockedTo;
 import com.kyson.common.utils.PageUtils;
 import com.kyson.mall.ware.entity.WareSkuEntity;
 import com.kyson.mall.ware.vo.SkuHasStockVo;
@@ -25,5 +27,9 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     List<SkuHasStockVo> getSkuHasStock(List<Long> skuIds);
 
     Boolean orderLockStock(WareSkuLockVo vo);
+
+    void unLockStock(StockLockedTo to);
+
+    void unLockStock(OrderTo to);
 }
 

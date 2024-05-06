@@ -27,6 +27,7 @@
         <module>kkmall-sso-client</module>
         <module>kkmall-sso-server</module>
         <module>kkmall-cart</module>
+        <module>kkmall-seckill</module>
     </modules>
 
 </project>

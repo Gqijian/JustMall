@@ -1,21 +1,34 @@
 package com.kyson.mall.order.config;
 
 import org.springframework.amqp.core.Message;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
-import javax.annotation.PostConstruct;
-
+@EnableRedisHttpSession
 @Configuration
 public class RabbitConfig {
 
-    @Autowired
+//    @Autowired
     RabbitTemplate rabbitTemplate;
+
+    //TODO 循环依赖问题
+    @Primary
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        this.rabbitTemplate = rabbitTemplate;
+        rabbitTemplate.setMessageConverter(messageConverter());
+        initRabbitTemplate();
+        return rabbitTemplate;
+    }
     /**
      * 消息转 json
      * @return
@@ -38,7 +51,7 @@ public class RabbitConfig {
      *      再次进行消费。
      *    手动ack签收
      */
-    @PostConstruct  //RabbitConfig 对象创建完成以后，执行这个方法
+    //@PostConstruct  //RabbitConfig 对象创建完成以后，执行这个方法
     public void initRabbitTemplate(){
         //设置确认回调
         rabbitTemplate.setConfirmCallback(new RabbitTemplate.ConfirmCallback() {
@@ -51,7 +64,7 @@ public class RabbitConfig {
             @Override
             public void confirm(CorrelationData correlationData, boolean ack, String cause)
             {
-
+                //服务器收到了
                 System.out.println("correlationData" + correlationData + "ack " + ack + "cause" + cause);
             }
         });
@@ -72,7 +85,7 @@ public class RabbitConfig {
             @Override
             public void returnedMessage(Message message, int replyCode, String replyText, String exchange, String routingKey)
             {
-
+                //报错误了 修改数据库当前消息的错误状态 -> 错误状态
                 System.out.println("fail message " + message);
             }
         });
